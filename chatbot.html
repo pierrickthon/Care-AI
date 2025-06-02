@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Care AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "🩺";
+            font-size: 28px;
+            animation: pulse 2s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            max-width: 1000px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-history h3 {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .history-item.active {
+            background: rgba(0, 212, 255, 0.2);
+            color: white;
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        /* Main Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-status {
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .chat-header h2 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        /* Messages Area */
+        .messages-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 15px;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+        }
+
+        .message.assistant .message-avatar {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant .message-content {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .message-text {
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .message-time {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 60px 30px;
+            color: white;
+        }
+
+        .welcome-message h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .welcome-message p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .suggestion {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .suggestion:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .suggestion-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 20px 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .message-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 15px;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .typing-content {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: typing 1.5s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Animations */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes typing {
+            0%, 20% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 1; }
+            80%, 100% { transform: scale(1); opacity: 0.3; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            
+            .chat-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .messages-container {
+                padding: 20px 15px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .input-container {
+                padding: 15px;
+            }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(255, 82, 82, 0.2);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+            color: #ff9999;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">Care AI</a>
+            <ul class="nav-links">
+                <li><a href="#">Accueil</a></li>
+                <li><a href="#">À propos</a></li>
+                <li><a href="#" class="active">Chat</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" onclick="startNewChat()">
+                    ➕ Nouvelle conversation
+                </button>
+            </div>
+            <div class="chat-history">
+                <h3>Historique</h3>
+                <div id="historyList">
+                    <!-- L'historique sera généré ici -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat -->
+        <div class="chat-main">
+            <div class="chat-header">
+                <div class="chat-status"></div>
+                <div>
+                    <h2>Care AI Assistant</h2>
+                    <p>En ligne • Spécialisé en santé</p>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- Welcome Message -->
+                <div class="welcome-message" id="welcomeMessage">
+                    <h2>👋 Bonjour ! Je suis Care AI</h2>
+                    <p>Votre assistant santé intelligent. Posez-moi vos questions sur la santé, les symptômes, les traitements ou la prévention.</p>
+                    
+                    <div class="suggestions">
+                        <div class="suggestion" onclick="sendSuggestion('Quels sont les symptômes de la grippe ?')">
+                            <span class="suggestion-icon">🤒</span>
+                            <div class="suggestion-text">Symptômes de la grippe</div>
+                        </div>
+                        <div class="suggestion" onclick="sendSuggestion('Comment améliorer mon sommeil ?')">
+                            <span class="suggestion-icon">😴</span>
+                            <div class="suggestion-text">Améliorer le sommeil</div>
+                        </div>
+                        <div class="suggestion" onclick="sendSuggestion('Conseils pour une alimentation équilibrée')">
+                            <span class="suggestion-icon">🥗</span>
+                            <div class="suggestion-text">Alimentation saine</div>
+                        </div>
+                        <div class="suggestion" onclick="sendSuggestion('Exercices pour mal de dos')">
+                            <span class="suggestion-icon">🏃‍♂️</span>
+                            <div class="suggestion-text">Exercices physiques</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        class="message-input" 
+                        placeholder="Tapez votre question sur la santé..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔑 CONFIGURATION API - REMPLACEZ CETTE CLEF PAR VOTRE VRAIE CLEF API
+        const API_KEY = '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'; // ⚠️ Remplacez par votre vraie clé API
+        const API_URL = 'https://api.openai.com/v1/chat/completions'; // Ou votre endpoint API
+
+        let messages = [];
+        let chatHistory = JSON.parse(localStorage.getItem('careAI_chatHistory') || '[]');
+        let currentChatId = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChatHistory();
+            setupInputHandlers();
+        });
+
+        // Configuration de l'input
+        function setupInputHandlers() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            input.addEventListener('input', function() {
+                // Auto-resize textarea
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                
+                // Activer/désactiver le bouton
+                sendButton.disabled = !this.value.trim();
+            });
+        }
+
+        // Envoyer un message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Ajouter le message utilisateur
+            addMessage('user', message);
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Masquer le message de bienvenue
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            // Afficher l'indicateur de frappe
+            showTypingIndicator();
+            
+            try {
+                // Appel API
+                const response = await callAPI(message);
+                hideTypingIndicator();
+                addMessage('assistant', response);
+                
+                // Sauvegarder dans l'historique
+                saveToHistory(message);
+                
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('assistant', 'Désolé, je rencontre un problème technique. Veuillez réessayer dans quelques instants.');
+                console.error('Erreur API:', error);
+            }
+        }
+
+        // Appel API (configurez selon votre service)
+        async function callAPI(userMessage) {
+            // ⚠️ ATTENTION: Vérifiez que votre clé API est configurée
+            if (API_KEY === 'VOTRE_CLE_API_ICI') {
+                return "⚠️ Configuration requise: Veuillez configurer votre clé API dans le code. Remplacez 'VOTRE_CLE_API_ICI' par votre vraie clé API.";
+            }
+
+            const requestBody = {
+                model: "gpt-3.5-turbo", // ou le modèle de votre choix
+                messages: [
+                    {
+                        role: "system",
+                        content: "Tu es Care AI, un assistant médical bienveillant et professionnel. Tu fournis des informations de santé générales, mais tu rappelles toujours que tes conseils ne remplacent pas un avis médical professionnel. Réponds en français de manière claire et empathique."
+                    },
+                    ...messages.map(msg => ({
+                        role: msg.role === 'user' ? 'user' : 'assistant',
+                        content: msg.content
+                    })),
+                    {
+                        role: "user",
+                        content: userMessage
+                    }
+                ],
+                max_tokens: 500,
+                temperature: 0.7
+            };
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur API: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        // Ajouter un message à l'interface
+        function addMessage(role, content) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${role === 'user' ? '👤' : '🩺'}
+                </div>
+                <div class="message-content">
+                    <p class="message-text">${content}</p>
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Ajouter aux messages
+            messages.push({
+                role: role,
+                content: content,
+                timestamp: now.toISOString()
+            });
+        }
+
+        // Afficher l'indicateur de frappe
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🩺</div>
+                <div class="typing-content">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Masquer l'indicateur de frappe
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Envoyer une suggestion
+        function sendSuggestion(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        // Nouvelle conversation
+        function startNewChat() {
+            messages = [];
+            currentChatId = null;
+            document.getElementById('messagesContainer').innerHTML = `
+                <div class="welcome-message" id="welcomeMessage">
+                    <h2>👋 Bonjour ! Je suis Care AI</h2>
+                    <p>Votre assistant santé intelligent. Posez-moi vos questions sur la santé, les symptômes, les traitements ou la prévention.</p>
+                    
+                    <div class="suggestions">
+                        <div class="suggestion" onclick="sendSuggestion('Quels sont les symptômes de la grippe ?')">
+                            <span class="suggestion-icon">🤒</span>
+                            <div class="suggestion-text">Symptômes de la grippe</div>
+                        </div>
+                        <div class="suggestion" onclick="sendSuggestion('Comment améliorer mon sommeil ?')">
+                            <span class="suggestion-icon">😴</span>
+                            <div class="suggestion-text">Améliorer le sommeil</div>
+                        </div>
+                        <div class="suggestion" onclick="sendSuggestion('Conseils pour une alimentation équilibrée')">
+                            <span class="suggestion-icon">🥗</span>
+                            <div class="suggestion-text">Alimentation saine</div>
+                        </div>
+                        <div class="suggestion" onclick="sendSuggestion('Exercices pour mal de dos')">
+                            <span class="suggestion-icon">🏃‍♂️</span>
+                            <div class="suggestion-text">Exercices physiques</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Désactiver les conversations actives
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        // Sauvegarder dans l'historique
+        function saveToHistory(firstMessage) {
+            if (!currentChatId) {
+                currentChatId = Date.now().toString();
+                const historyItem = {
+                    id: currentChatId,
+                    title: firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : ''),
+                    timestamp: new Date().toISOString(),
+                    messages: [...messages]
+                };
+                
+                chatHistory.unshift(historyItem);
+                chatHistory = chatHistory.slice(0, 10); // Garder seulement 10 conversations
+                localStorage.setItem('careAI_chatHistory', JSON.stringify(chatHistory));
+                loadChatHistory();
+            }
+        }
+
+        // Charger l'historique
+        function loadChatHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            chatHistory.forEach(chat => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.textContent = chat.title;
+                historyItem.onclick = () => loadChat(chat);
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Charger une conversation
+        function loadChat(chat) {
+            currentChatId = chat.id;
+            messages = [...chat.messages];
+            
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = '';
+            
+            messages.forEach(msg => {
+                addMessageToUI(msg.role, msg.content, msg.timestamp);
+            });
+            
+            // Activer l'élément d'historique
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Ajouter message à l'UI (pour l'historique)
+        function addMessageToUI(role, content, timestamp) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const date = new Date(timestamp);
+            const timeString = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${role === 'user' ? '👤' : '🩺'}
+                </div>
+                <div class="message-content">
+                    <p class="message-text">${content}</p>
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>

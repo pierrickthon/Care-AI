@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos - Care AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "🩺";
+            font-size: 32px;
+            animation: pulse 2s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideInUp 1s ease 0.2s forwards;
+        }
+
+        .page-header .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: slideInUp 1s ease 0.4s forwards;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .content-section:nth-child(even) {
+            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.05));
+        }
+
+        .section-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .section-content.reverse {
+            direction: rtl;
+        }
+
+        .section-content.reverse > * {
+            direction: ltr;
+        }
+
+        .text-content h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .text-content p {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .visual-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visual-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmer 3s linear infinite;
+        }
+
+        .large-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #00d4ff;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        /* Mission Section */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .mission-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: slideInUp 0.8s ease forwards;
+        }
+
+        .mission-card:nth-child(1) { animation-delay: 0.1s; }
+        .mission-card:nth-child(2) { animation-delay: 0.3s; }
+        .mission-card:nth-child(3) { animation-delay: 0.5s; }
+
+        .mission-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .mission-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .mission-card h3 {
+            color: white;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .mission-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #00d4ff, #00ff88);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .timeline-date {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        .timeline-content h4 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .timeline-content p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Team Section */
+        .team-intro {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .team-intro h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .team-intro p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.2));
+            border-radius: 30px;
+            padding: 60px 40px;
+            text-align: center;
+            margin: 80px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmer 4s linear infinite;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 0 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #00d4ff;
+            transform: translateY(-3px);
+        }
+
+        /* Animations */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .section-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                flex-direction: row !important;
+                padding-left: 60px;
+            }
+            
+            .timeline-content {
+                width: 100%;
+            }
+            
+            .timeline-date {
+                left: 20px;
+            }
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundShift 10s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">Care AI</a>
+            <ul class="nav-links">
+                <li><a href="http://127.0.0.1:5500/garde.html#accueil">Accueil</a></li>
+                <li><a href="http://127.0.0.1:5500/garde.html#accueil">Le Chat</a></li>
+                <li><a href="#" class="active">À propos</a></li>
+                <li><a href="#">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>À propos de Care AI</h1>
+                <p class="subtitle">Découvrez notre mission : démocratiser l'accès aux informations de santé grâce à l'intelligence artificielle</p>
+            </div>
+        </section>
+
+        <!-- Notre Histoire -->
+        <section class="content-section">
+            <div class="container">
+                <div class="section-content">
+                    <div class="text-content">
+                        <h2>Notre Histoire</h2>
+                        <p>Care AI est né d'une vision simple mais puissante : rendre les informations de santé accessibles à tous, partout et à tout moment. Face aux difficultés d'accès aux professionnels de santé et à la complexité des informations médicales, nous avons décidé de créer une solution innovante.</p>
+                        <p>Grâce aux avancées de l'intelligence artificielle, nous avons développé un assistant conversationnel capable de comprendre vos préoccupations de santé et de vous fournir des informations fiables et personnalisées.</p>
+                    </div>
+                    <div class="visual-content">
+                        <span class="large-icon">🚀</span>
+                        <div class="stat-number">2025</div>
+                        <div class="stat-label">Année de création</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notre Mission -->
+        <section class="content-section">
+            <div class="container">
+                <div class="section-content reverse">
+                    <div class="text-content">
+                        <h2>Notre Mission</h2>
+                        <p>Nous croyons que chacun devrait avoir accès à des informations de santé de qualité, sans barrières géographiques ou financières. Notre mission est de combiner l'expertise médicale avec la puissance de l'IA pour créer un compagnon de santé intelligent.</p>
+                        <p>Care AI ne remplace pas votre médecin, mais vous accompagne en vous fournissant des informations préliminaires, en vous aidant à mieux comprendre vos symptômes et en vous orientant vers les bonnes ressources.</p>
+                    </div>
+                    <div class="visual-content">
+                        <span class="large-icon">🎯</span>
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Disponibilité</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nos Valeurs -->
+        <section class="content-section">
+            <div class="container">
+                <div class="team-intro">
+                    <h2>Nos Valeurs</h2>
+                    <p>Les principes qui guident notre développement et notre approche de la santé numérique</p>
+                </div>
+                
+                <div class="mission-grid">
+                    <div class="mission-card">
+                        <span class="mission-icon">🔒</span>
+                        <h3>Confidentialité</h3>
+                        <p>Votre vie privée est notre priorité. Toutes vos conversations sont sécurisées et confidentielles, respectant les plus hauts standards de protection des données.</p>
+                    </div>
+                    
+                    <div class="mission-card">
+                        <span class="mission-icon">📚</span>
+                        <h3>Fiabilité</h3>
+                        <p>Nos réponses sont basées sur des sources médicales reconnues et des données scientifiques vérifiées pour vous garantir des informations de qualité.</p>
+                    </div>
+                    
+                    <div class="mission-card">
+                        <span class="mission-icon">🤝</span>
+                        <h3>Accessibilité</h3>
+                        <p>Nous rendons les informations de santé compréhensibles pour tous, en adaptant notre langage à votre niveau de compréhension.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="content-section">
+            <div class="container">
+                <div class="team-intro">
+                    <h2>Notre Parcours</h2>
+                    <p>Les étapes clés du développement de Care AI</p>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h4>Conception & Recherche</h4>
+                            <p>Analyse des besoins en santé numérique et étude des technologies d'IA les plus adaptées pour créer un assistant médical fiable.</p>
+                        </div>
+                        <div class="timeline-date">Début 2025</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h4>Développement du Prototype</h4>
+                            <p>Création du premier modèle d'IA spécialisé en santé, entraîné sur une base de données médicales complète et vérifiée.</p>
+                        </div>
+                        <div class="timeline-date">Mars 2025</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h4>Tests & Optimisation</h4>
+                            <p>Phase intensive de tests avec des professionnels de santé pour affiner les réponses et améliorer la précision du système.</p>
+                        </div>
+                        <div class="timeline-date">Mai 2025</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h4>Lancement Public</h4>
+                            <p>Mise à disposition de Care AI au grand public avec toutes les fonctionnalités de sécurité et de confidentialité intégrées.</p>
+                        </div>
+                        <div class="timeline-date">Juin 2025</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technologie -->
+        <section class="content-section">
+            <div class="container">
+                <div class="section-content">
+                    <div class="text-content">
+                        <h2>Notre Technologie</h2>
+                        <p>Care AI utilise les dernières avancées en intelligence artificielle et en traitement du langage naturel. Notre modèle a été spécialement entraîné sur des corpus médicaux validés par des professionnels de santé.</p>
+                        <p>Nous intégrons également des systèmes de vérification croisée et des garde-fous pour garantir que les informations fournies sont appropriées et sécurisées. Notre infrastructure cloud assure une disponibilité 24h/24 et 7j/7.</p>
+                    </div>
+                    <div class="visual-content">
+                        <span class="large-icon">🧠</span>
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Temps de disponibilité</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="content-section">
+            <div class="container">
+                <div class="cta-section">
+                    <h2>Prêt à découvrir Care AI ?</h2>
+                    <p>Rejoignez des milliers d'utilisateurs qui font confiance à Care AI pour leurs questions de santé</p>
+                    <a href="http://127.0.0.1:5500/index.html" class="btn">Commencer maintenant</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Care AI. Tous droits réservés.</p>
+            <div class="social-links">
+                <a href="#">📧</a>
+                <a href="#">🐦</a>
+                <a href="#">💼</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Animation au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Observer les éléments à animer
+        document.querySelectorAll('.mission-card, .timeline-item, .section-content').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animation des statistiques
+        function animateStats() {
+            document.querySelectorAll('.stat-number').forEach(stat => {
+                const finalValue = stat.textContent;
+                if (!isNaN(parseFloat(finalValue))) {
+                    let currentValue = 0;
+                    const increment = parseFloat(finalValue) / 50;
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= parseFloat(finalValue)) {
+                            currentValue = parseFloat(finalValue);
+                            clearInterval(timer);
+                        }
+                        stat.textContent = currentValue.toFixed(1);
+                    }, 30);
+                }
+            });
+        }
+
+        // Déclencher l'animation des stats quand elles sont visibles
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateStats();
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        document.querySelectorAll('.visual-content').forEach(stat => {
+            statsObserver.observe(stat);
+        });
+
+        // Effet de hover interactif sur les boutons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function(e) {
+                const rect = e.target.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 0;
+                    height: 0;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.1);
+                    transform: translate(-50%, -50%);
+                    animation: ripple 0.6s linear;
+                    left: ${e.clientX - rect.left}px;
+                    top: ${e.clientY - rect.top}px;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Ajout de l'animation ripple CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 100px;
+                    height: 100px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

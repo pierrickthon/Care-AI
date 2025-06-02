@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Care AI</title>
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #00d4ff, #00ff88);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.8);
+      --text-tertiary: rgba(255, 255, 255, 0.6);
+      --user-msg-bg: linear-gradient(135deg, #00d4ff, #00ff88);
+      --bot-msg-bg: rgba(255, 255, 255, 0.15);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      font-family: var(--font);
+      height: 100vh;
+      background: var(--primary-gradient);
+      color: var(--text-primary);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+      z-index: -1;
+      animation: backgroundShift 10s ease-in-out infinite;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--glass-border);
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      align-items: center;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: var(--secondary-gradient);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: pulse 2s infinite;
+    }
+
+    .logo::before {
+      content: "🩺";
+      z-index: 2;
+      position: relative;
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 3s linear infinite;
+    }
+
+    .welcome-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .bienvenue-message {
+      font-size: 28px;
+      font-weight: 700;
+      background: var(--secondary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .sidebar h1 {
+      font-size: 16px;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .menu {
+      width: 100%;
+    }
+
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu li::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .menu li:hover::before {
+      left: 100%;
+    }
+
+    .menu li:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu li span {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .menu li a {
+      color: inherit;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    .chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-box::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .chat-box::-webkit-scrollbar-thumb {
+      background: var(--secondary-gradient);
+      border-radius: 3px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 18px 24px;
+      border-radius: 20px;
+      line-height: 1.6;
+      font-size: 15px;
+      white-space: pre-wrap;
+      animation: fadeInUp 0.4s ease both;
+      position: relative;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .user {
+      align-self: flex-end;
+      background: var(--user-msg-bg);
+      color: white;
+      box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: var(--bot-msg-bg);
+      color: var(--text-primary);
+    }
+
+    .input-area {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      padding: 20px;
+      border-top: 1px solid var(--glass-border);
+      gap: 12px;
+      align-items: center;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 25px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: var(--text-primary);
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    #message-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    #message-input:focus {
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    button[type="submit"] {
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button[type="submit"]::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    button[type="submit"]:hover::before {
+      left: 100%;
+    }
+
+    button[type="submit"]:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 212, 255, 0.4);
+    }
+
+    #toggle-voice {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+    }
+
+    #toggle-voice:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 212, 255, 0.4);
+    }
+
+    .recent-queries {
+      position: absolute;
+      bottom: 90px;
+      right: 20px;
+      width: 280px;
+      max-height: 250px;
+      overflow-y: auto;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      font-size: 14px;
+      color: var(--text-primary);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      animation: slideInUp 0.3s ease;
+    }
+
+    .recent-queries h3 {
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      background: var(--secondary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .recent-queries ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .recent-queries li {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin-bottom: 4px;
+    }
+
+    .recent-queries li:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(4px);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+      }
+      
+      body {
+        flex-direction: column;
+      }
+      
+      .message {
+        max-width: 90%;
+      }
+      
+      .recent-queries {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+      }
+
+      .menu ul {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .menu li {
+        flex: 1;
+        min-width: calc(50% - 4px);
+        justify-content: center;
+        padding: 12px 8px;
+        font-size: 12px;
+      }
+
+      .menu li span {
+        font-size: 16px;
+      }
+
+      .sidebar h1 {
+        font-size: 14px;
+        padding: 15px;
+      }
+    }
+
+    /* Loading animation for messages */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 20px 24px;
+      align-self: flex-start;
+      background: var(--bot-msg-bg);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+      30% { transform: translateY(-10px); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"></div>
+    <div class="welcome-container">
+      <h1 id="bienvenue" class="bienvenue-message">Care AI</h1>
+    </div>    
+    <h1>Care AI is a chatbot who exists to assist elderly people or seniors about their health. CAI is also built for the "human" side of AI and specialized in health topics.
+    </h1>
+    <nav class="menu">
+      <ul>
+        <li><a href="https://www.ameli.fr" target="_blank"><span>🧑‍⚕️</span> Conseils Santé</a></li>
+        <li><a href="https://www.pharma-gdd.com" target="_blank"><span>💊</span> Médicaments</a></li>
+        <li><a href="https://www.mangerbouger.fr" target="_blank"><span>🍽️</span> Nutrition</a></li>
+        <li><a href="https://www.pourbienvieillir.fr/activite-physique" target="_blank"><span>🚶</span> Sport</a></li>
+        <li><a href="https://www.doctissimo.fr/symptomes" target="_blank"><span>👂</span> Symptômes</a></li>
+        <li><a href="https://www.service-public.fr/particuliers/vosdroits/F324" target="_blank"><span>📞</span> Urgences</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <button id="toggle-voice">🎤 Vocal</button>
+    <div id="chat" class="chat-box">
+      <!-- Messages will be added here dynamically -->
+    </div>
+
+    <form id="chat-form" class="input-area">
+      <input
+        type="text"
+        id="message-input"
+        placeholder="Envoyez un message à Care AI..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit">➤</button>
+    </form>
+  </main>
+
+  <script>
+    const API_KEY = "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"; // remplace par TA vraie clé OpenRouter
+
+const form = document.getElementById("chat-form");
+const input = document.getElementById("message-input");
+const chat = document.getElementById("chat");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+
+  appendMessage("user", message);
+  input.value = "";
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-3.5-turbo",
+        messages: [{ role: "user", content: message }]
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error(`Erreur API (${res.status})`);
+    }
+
+    const data = await res.json();
+    appendMessage("bot", data.choices[0].message.content);
+  } catch (err) {
+    appendMessage("bot", `Erreur : ${err.message}`);
+  }
+});
+
+function appendMessage(role, text) {
+  const div = document.createElement("div");
+  div.className = `message ${role}`;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const prenom = localStorage.getItem("prenomUtilisateur");
+  const bienvenue = document.getElementById("bienvenue");
+  if (prenom) {
+    bienvenue.textContent = `Bienvenue, ${prenom} 👋`;
+  } else {
+    bienvenue.textContent = "Bienvenue sur Care AI 👋";
+  }
+});
+
+
+    // Animation au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animation du message de bienvenue
+      const welcomeMsg = document.getElementById('bienvenue');
+      welcomeMsg.style.opacity = '0';
+      welcomeMsg.style.transform = 'translateY(20px)';
+      
+      setTimeout(() => {
+        welcomeMsg.style.transition = 'all 0.6s ease';
+        welcomeMsg.style.opacity = '1';
+        welcomeMsg.style.transform = 'translateY(0)';
+      }, 300);
+
+      // Animation des éléments du menu
+      const menuItems = document.querySelectorAll('.menu li');
+      menuItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-20px)';
+        
+        setTimeout(() => {
+          item.style.transition = 'all 0.4s ease';
+          item.style.opacity = '1';
+          item.style.transform = 'translateX(0)';
+        }, 500 + (index * 100));
+      });
+
+      // Message de bienvenue automatique
+      setTimeout(() => {
+        addMessage('Bonjour ! Je suis Care AI, votre assistant santé. Comment puis-je vous aider aujourd\'hui ?', 'bot');
+      }, 1000);
+    });
+
+    // Fonction pour ajouter des messages
+    function addMessage(text, sender) {
+      const chatBox = document.getElementById('chat');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+      messageDiv.textContent = text;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Fonction pour afficher l'indicateur de saisie
+    function showTypingIndicator() {
+      const chatBox = document.getElementById('chat');
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.id = 'typing-indicator';
+      
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'typing-dot';
+        typingDiv.appendChild(dot);
+      }
+      
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    }
+
+    // Gestion du formulaire (vous devrez connecter ceci à votre logique de chatbot existante)
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const input = document.getElementById('message-input');
+      const message = input.value.trim();
+      
+      if (message) {
+        // Ajouter le message de l'utilisateur
+        addMessage(message, 'user');
+        input.value = '';
+        
+        // Afficher l'indicateur de saisie
+        showTypingIndicator();
+        
+        // Simuler une réponse (remplacez par votre logique réelle)
+        setTimeout(() => {
+          hideTypingIndicator();
+          addMessage('Je traite votre demande. Ceci est une réponse de démonstration.', 'bot');
+        }, 1500);
+      }
+    });
+
+    // Effet ripple sur les boutons
+    document.querySelectorAll('button, .menu li').forEach(element => {
+      element.addEventListener('click', function(e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.2);
+          transform: scale(0);
+          animation: ripple 0.6s linear;
+          left: ${x}px;
+          top: ${y}px;
+          pointer-events: none;
+        `;
+        
+        if (e.currentTarget.style.position !== 'absolute' && e.currentTarget.style.position !== 'relative') {
+          e.currentTarget.style.position = 'relative';
+        }
+        e.currentTarget.style.overflow = 'hidden';
+        
+        e.currentTarget.appendChild(ripple);
+        
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+
+    // Ajout de l'animation ripple CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple {
+        to {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
